@@ -134,7 +134,7 @@ public class ClipboardService extends IClipboard.Stub {
             }
             throw e;
         }
-        
+
     }
 
     private PerUserClipboard getClipboard() {
@@ -252,7 +252,7 @@ public class ClipboardService extends IClipboard.Stub {
             Binder.restoreCallingIdentity(ident);
         }
     }
-    
+
     public ClipData getPrimaryClip(String pkg) {
         synchronized (this) {
             if (mAppOps.noteOp(AppOpsManager.OP_READ_CLIPBOARD, Binder.getCallingUid(),
@@ -315,15 +315,8 @@ public class ClipboardService extends IClipboard.Stub {
     }
 
     private boolean isDeviceLocked() {
-        int callingUserId = UserHandle.getCallingUserId();
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final KeyguardManager keyguardManager = mContext.getSystemService(
-                    KeyguardManager.class);
-            return keyguardManager != null && keyguardManager.isDeviceLocked(callingUserId);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        final KeyguardManager keyguardManager = mContext.getSystemService(KeyguardManager.class);
+        return keyguardManager != null && keyguardManager.isDeviceLocked();
     }
 
     private final void checkUriOwnerLocked(Uri uri, int uid) {
