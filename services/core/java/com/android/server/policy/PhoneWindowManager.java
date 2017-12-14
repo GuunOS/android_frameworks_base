@@ -929,8 +929,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // AOSPA constants
     private static final int MSG_DISPATCH_KEYPRESS_BOOST_UNBLOCK = 100;
 
-    private CameraManager mCameraManager;
-    private boolean mTorchEnabled;
     private boolean mIsTorchActive;
     private boolean mWasTorchActive;
 
@@ -3783,7 +3781,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean virtualKey = event.getDeviceId() == KeyCharacterMap.VIRTUAL_KEYBOARD;
         final int scanCode = event.getScanCode();
 	final boolean isCustomSource = source == InputDevice.SOURCE_KEYBOARD;
-      //  final int keyCode = event.getKeyCode();
+        final int keyCode = event.getKeyCode();
 
         if (DEBUG_INPUT) {
             Log.d(TAG, "interceptKeyTi keyCode=" + keyCode + " down=" + down + " repeatCount="
