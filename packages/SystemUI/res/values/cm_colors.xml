@@ -22,7 +22,4 @@
     <color name="status_bar_temperature_text_color">#FFFFFFFF</color>
     <color name="status_bar_temperature_location_text_color">#FFFFFFFF</color>
 
-    <!-- Pixel theme -->
-    <color name="pixel_primary_color">#242424</color>
-
 </resources>
