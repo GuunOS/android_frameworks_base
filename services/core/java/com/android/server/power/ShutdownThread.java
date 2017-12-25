@@ -309,6 +309,7 @@ public final class ShutdownThread extends Thread {
      * @param confirm true if user confirmation is needed before shutting down.
      */
     public static void reboot(final Context context, String reason, boolean confirm) {
+        final Context mContext = getContext(context);
         mReboot = true;
         mRebootSafeMode = false;
         mRebootHasProgressBar = false;
