@@ -145,4 +145,6 @@
   <java-symbol type="style" name="Theme_DeviceDefault_White_Pink" />
   <java-symbol type="style" name="Theme_DeviceDefault_White_Cyan" />
   <java-symbol type="style" name="Theme_DeviceDefault_White_Grey" />
+
+  <java-symbol type="array" name="config_blockPackagesSensorDrain" />
 </resources>
