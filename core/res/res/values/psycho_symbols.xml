@@ -110,6 +110,9 @@
     <!-- Whether light up buttons only when pressed -->
     <java-symbol type="bool" name="config_buttonLightOnKeypressOnly" />
 
+    <!-- global actions (zen mode buttons) -->
+    <java-symbol type="id" name="option4" />
+
     <!-- Dark mode -->
   <java-symbol type="style" name="Theme_DeviceDefault_Dark" />
   <java-symbol type="style" name="Theme_DeviceDefault_Dark_Red" />
