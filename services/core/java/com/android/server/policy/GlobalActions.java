@@ -99,6 +99,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import cyanogenmod.providers.CMSettings;
 
 import java.util.ArrayList;
@@ -1287,13 +1288,13 @@ public class GlobalActions implements DialogInterface.OnDismissListener, DialogI
 
     private final class SilentModeTriStateAction implements Action, View.OnClickListener {
 
-      private final int[] ITEM_IDS = { R.id.option1, R.id.option2, R.id.option3, R.id.option4 };
-      private final int[] ITEM_INDEX_TO_ZEN_MODE = {
-              Global.ZEN_MODE_NO_INTERRUPTIONS,
-              Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS,
-              Global.ZEN_MODE_OFF,
-              Global.ZEN_MODE_OFF
-      };
+        private final int[] ITEM_IDS = { R.id.option1, R.id.option2, R.id.option3, R.id.option4 };
+        private final int[] ITEM_INDEX_TO_ZEN_MODE = {
+                Global.ZEN_MODE_NO_INTERRUPTIONS,
+                Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS,
+                Global.ZEN_MODE_OFF,
+                Global.ZEN_MODE_OFF
+        };
 
         private final AudioManager mAudioManager;
         private final Handler mHandler;
@@ -1306,7 +1307,7 @@ public class GlobalActions implements DialogInterface.OnDismissListener, DialogI
         }
 
         private int indexToRingerMode(int index) {
-          if (index == 2) {
+            if (index == 2) {
                 if (mHasVibrator) {
                     return AudioManager.RINGER_MODE_VIBRATE;
                 } else {
