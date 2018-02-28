@@ -522,8 +522,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
 
         private void update() {
-                
-            ContentResolver resolver = mContext.getContentResolver();
             boolean visible = CMSettings.Global.getIntForUser(mContext.getContentResolver(),
                     CMSettings.Global.DEV_FORCE_SHOW_NAVBAR, 0, UserHandle.USER_CURRENT) == 1;
 
