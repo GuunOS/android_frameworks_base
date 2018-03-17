@@ -94,7 +94,7 @@ public class QSPanel extends LinearLayout implements Tunable, Callback {
         setOrientation(VERTICAL);
 
         final int brightpost = Settings.Secure.getInt(getContext().getContentResolver(),
-                  Settings.Secure.BRIGHTNESS_SLIDER_POSITION, 0);
+                  Settings.System.BRIGHTNESS_SLIDER_POSITION, 0);
 
         mBrightnessView = LayoutInflater.from(context).inflate(
                 R.layout.quick_settings_brightness_dialog, this, false);
