@@ -3695,6 +3695,13 @@ public final class Settings {
          */
         public static final String NETWORK_TRAFFIC_HIDEARROW = "network_traffic_hidearrow";
 
+        /**
+         * Defines position of Brightness bar in QS
+         * 0 = Above QS Icons
+         * 1 = Below QS Icons
+         * @hide
+         */
+         public static final String BRIGHTNESS_SLIDER_POSITION = "brightness_slider_position";
 
         /**
          * I am the lolrus.
