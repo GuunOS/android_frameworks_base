@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.provider.Settings.Secure;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
