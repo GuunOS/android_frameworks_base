@@ -3770,12 +3770,6 @@ public final class Settings {
         public static final String SENSOR_BLOCK = "sensor_block";
 
         /**
-         * Default animation
-         * @hide
-         */
-        public static final String SYSTEM_DEFAULT_ANIMATION = "system_default_animation";
-
-        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
@@ -9345,6 +9339,13 @@ public final class Settings {
          * @hide
          */
          public static final String CONNECTED_LINE_IDENTIFICATION = "connected_line_identification";
+
+	     /**
+         * Default animation
+         * @hide
+         */
+        public static final String SYSTEM_DEFAULT_ANIMATION = "system_default_animation";
+
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
