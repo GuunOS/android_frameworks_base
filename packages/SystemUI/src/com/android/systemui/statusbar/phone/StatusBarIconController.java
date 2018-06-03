@@ -47,7 +47,6 @@ import com.android.systemui.SystemUIFactory;
 import com.android.systemui.statusbar.NotificationData;
 import com.android.systemui.statusbar.SignalClusterView;
 import com.android.systemui.statusbar.StatusBarIconView;
-import com.android.systemui.statusbar.policy.NetworkTraffic;
 import com.android.systemui.tuner.TunerService;
 import com.android.systemui.tuner.TunerService.Tunable;
 
@@ -79,11 +78,8 @@ public class StatusBarIconController extends StatusBarIconList implements Tunabl
 
     private BatteryMeterView mBatteryMeterView;
     private BatteryMeterView mBatteryMeterViewKeyguard;
-
     private ClockController mClockController;
     private View mCenterClockLayout;
-
-    private NetworkTraffic mNetworkTraffic;
 
     private int mIconSize;
     private int mIconHPadding;
@@ -143,7 +139,6 @@ public class StatusBarIconController extends StatusBarIconList implements Tunabl
         mBatteryMeterViewKeyguard = (BatteryMeterView) keyguardStatusBar.findViewById(R.id.battery);
         scaleBatteryMeterViews(context);
 
-        mNetworkTraffic = (NetworkTraffic) statusBar.findViewById(R.id.networkTraffic);
         mDarkModeIconColorSingleTone = context.getColor(R.color.dark_mode_icon_color_single_tone);
         mLightModeIconColorSingleTone = context.getColor(R.color.light_mode_icon_color_single_tone);
         mHandler = new Handler();
@@ -554,8 +549,6 @@ public class StatusBarIconController extends StatusBarIconList implements Tunabl
                 isInArea(mTintArea, mBatteryMeterView) ? mDarkIntensity : 0);
         mClockController.setTextColor(mTintArea, mIconTint);
         mBatteryLevelView.setTextColor(getTint(mTintArea, mBatteryLevelView, mIconTint));
-
-        mNetworkTraffic.setDarkIntensity(mDarkIntensity);
     }
 
     public void appTransitionPending() {
