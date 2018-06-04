@@ -113,11 +113,6 @@
         hotspot,inversion,saver,work,cast,screenshot
     </string>
 
-    <!-- The default tiles to display in QuickSettings -->
-    <string name="quick_settings_tiles_extra" translatable="false">
-        hotspot,inversion,saver,work,cast,screenshot
-    </string>
-
     <!-- The tiles to display in QuickSettings -->
     <string name="quick_settings_tiles" translatable="false">default</string>
 
