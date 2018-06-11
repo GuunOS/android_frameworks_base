@@ -116,9 +116,6 @@ import android.service.dreams.DreamService;
 import android.service.dreams.IDreamManager;
 import android.speech.RecognizerIntent;
 import android.telecom.TelecomManager;
-import cyanogenmod.hardware.CMHardwareManager;
-import cyanogenmod.providers.CMSettings;
-import android.util.BoostFramework;
 import android.util.DisplayMetrics;
 import android.util.EventLog;
 import android.util.Log;
@@ -487,17 +484,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     Handler mHandler;
     WindowState mLastInputMethodWindow = null;
     WindowState mLastInputMethodTargetWindow = null;
-
-    private BoostFramework mPerfKey = null;
-    private BoostFramework mPerfRotation = null;
-    private boolean lIsPerfBoostEnabled;
-    private int[] mBoostParamValWeak;
-    private int[] mBoostParamValStrong;
-    private boolean mKeypressBoostBlocked;
-    private long mBoostEventTime = 0L;
-    private int mLastBoostDuration = 0;
-    private final int ROTATION_BOOST_TIMEOUT = 5000 /*ms*/;
-    private final int ROTATION_BOOST_FADE = 300 /*ms*/;
 
     // FIXME This state is shared between the input reader and handler thread.
     // Technically it's broken and buggy but it has been like this for many years
@@ -929,13 +915,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean mClearedBecauseOfForceShow;
     private boolean mTopWindowIsKeyguard;
 
-    // AOSPA constants
-    private static final int MSG_DISPATCH_KEYPRESS_BOOST_UNBLOCK = 100;
-    private static final int MSG_RELEASE_ROTATION_LOCK = 101;
-
-    private boolean mIsTorchActive;
-    private boolean mWasTorchActive;
-
     private boolean mVolumeAnswerCall;
 
     private CameraManager mCameraManager;
@@ -1034,12 +1013,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 case MSG_BACK_DELAYED_PRESS:
                     backMultiPressAction((Long) msg.obj, msg.arg1);
                     finishBackKeyPress();
-		    break;
-                case MSG_DISPATCH_KEYPRESS_BOOST_UNBLOCK:
-                    mKeypressBoostBlocked = false;
-                    break;
-                case MSG_RELEASE_ROTATION_LOCK:
-                    mPerfRotation.perfLockRelease();
                     break;
             }
         }
@@ -1210,15 +1183,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         private final Runnable mUpdateRotationRunnable = new Runnable() {
             @Override
             public void run() {
-                // send interaction hint and acquire perflock to improve redraw performance
+                // send interaction hint to improve redraw performance
                 mPowerManagerInternal.powerHint(PowerManagerInternal.POWER_HINT_INTERACTION, 0);
-                if (lIsPerfBoostEnabled) {
-                    mPerfRotation.perfLockAcquire(ROTATION_BOOST_TIMEOUT, mBoostParamValStrong);
-                }
                 updateRotation(false);
-                if (lIsPerfBoostEnabled) {
-                    mHandler.sendEmptyMessageDelayed(MSG_RELEASE_ROTATION_LOCK, ROTATION_BOOST_FADE);
-                }
             }
         };
 
@@ -2055,19 +2022,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     }
                 });
 
-
-
-        // Initialise Keypress Boost
-        mBoostParamValWeak = context.getResources().getIntArray(
-                com.android.internal.R.array.qboost_weak_param_value);
-        mBoostParamValStrong = context.getResources().getIntArray(
-                com.android.internal.R.array.qboost_strong_param_value);
-        lIsPerfBoostEnabled = mBoostParamValWeak.length != 0
-                && mBoostParamValStrong.length != 0;
-        if (lIsPerfBoostEnabled) {
-            mPerfKey = new BoostFramework();
-            mPerfRotation = new BoostFramework();
-        }
 
         // Init display burn-in protection
         boolean burnInProtectionEnabled = context.getResources().getBoolean(
@@ -3788,13 +3742,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final int repeatCount = event.getRepeatCount();
         final int metaState = event.getMetaState();
         final int flags = event.getFlags();
-	final int source = event.getSource();
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         final boolean canceled = event.isCanceled();
         final boolean longPress = (flags & KeyEvent.FLAG_LONG_PRESS) != 0;
         final boolean virtualKey = event.getDeviceId() == KeyCharacterMap.VIRTUAL_KEYBOARD;
-        final int scanCode = event.getScanCode();
-	final boolean isCustomSource = source == InputDevice.SOURCE_KEYBOARD;
         final int keyCode = event.getKeyCode();
 
         if (DEBUG_INPUT) {
@@ -4562,48 +4513,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mSearchManager = (SearchManager) mContext.getSystemService(Context.SEARCH_SERVICE);
         }
         return mSearchManager;
-    }
-
-    private void dispatchKeypressBoost(int keyCode) {
-        int boostDuration = 0;
-        int[] boostParamVal = mBoostParamValWeak;
-
-        // Calculate the duration of the boost
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_UNKNOWN:
-                mLastBoostDuration = 0;
-                return;
-            case KeyEvent.KEYCODE_APP_SWITCH:
-            case KeyEvent.KEYCODE_BACK:
-            case KeyEvent.KEYCODE_ENTER:
-            case KeyEvent.KEYCODE_HOME:
-            case KeyEvent.KEYCODE_SOFT_LEFT:
-            case KeyEvent.KEYCODE_SOFT_RIGHT:
-                boostDuration = 300;
-                break;
-            case KeyEvent.KEYCODE_CAMERA:
-            case KeyEvent.KEYCODE_POWER:
-                boostDuration = 500;
-                boostParamVal = mBoostParamValStrong;
-                break;
-            case KeyEvent.KEYCODE_MEDIA_PLAY:
-                boostDuration = 650;
-                break;
-        }
-
-        // Dispatch the boost
-        if (boostDuration != 0) {
-            mLastBoostDuration = boostDuration;
-            Slog.i(TAG, "Dispatching Keypress boost for " + boostDuration + " ms.");
-            mPerfKey.perfLockAcquire(boostDuration, boostParamVal);
-
-            // Block Keypress boost
-            mKeypressBoostBlocked = true;
-
-            // Calculate unblock time and dispatch delayed unblock MSG
-            int boostBlockTime = boostDuration + 50/*ms*/;
-            mHandler.sendEmptyMessageDelayed(MSG_DISPATCH_KEYPRESS_BOOST_UNBLOCK, boostBlockTime);
-        }
     }
 
     private void preloadRecentApps() {
@@ -6657,11 +6566,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean interactive = (policyFlags & FLAG_INTERACTIVE) != 0;
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         final boolean canceled = event.isCanceled();
-	final int flags = event.getFlags();
         final int keyCode = event.getKeyCode();
         final int scanCode = event.getScanCode();
-        final int repeatCount = event.getRepeatCount();
-        final int source = event.getSource();
+	final int source = event.getSource();
 
         final boolean isInjected = (policyFlags & WindowManagerPolicy.FLAG_INJECTED) != 0;
 
@@ -6669,9 +6576,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean homeKey = keyCode == KeyEvent.KEYCODE_HOME;
         final boolean menuKey = keyCode == KeyEvent.KEYCODE_MENU;
         final boolean backKey = keyCode == KeyEvent.KEYCODE_BACK;
-        final boolean longPress = (flags & KeyEvent.FLAG_LONG_PRESS) != 0;
-        final boolean navBarKey = source == InputDevice.SOURCE_NAVIGATION_BAR;
-	final boolean isCustomSource = source == InputDevice.SOURCE_KEYBOARD;
+	final boolean navBarKey = source == InputDevice.SOURCE_NAVIGATION_BAR;
 
         // If screen is off then we treat the case where the keyguard is open but hidden
         // the same as if it were open and in front.
@@ -6708,29 +6613,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 keyCode != KeyEvent.KEYCODE_MEDIA_PREVIOUS &&
                 keyCode != KeyEvent.KEYCODE_VOLUME_MUTE) {
                 return 0;
-            }
-        }
-
-        final boolean isHomeWakeKey = !isScreenOn()
-                && (keyCode == KeyEvent.KEYCODE_HOME);
-
-        // Intercept the Keypress event for Keypress boost
-        if (lIsPerfBoostEnabled && !isCustomSource) {
-            if (down && !longPress && repeatCount == 0 || down && longPress && repeatCount == 1) {
-                final long boostEventTime = mBoostEventTime;
-                mBoostEventTime = SystemClock.uptimeMillis();
-                if (boostEventTime != 0L) { // we had a previous boost
-                    final long boostEventTimeDiff = mBoostEventTime - boostEventTime;
-                    final boolean reBoostByDiff = boostEventTimeDiff >= ((long) mLastBoostDuration - 150L)
-                            && boostEventTimeDiff <= ((long) mLastBoostDuration - 50L);
-                    if (mKeypressBoostBlocked && mLastBoostDuration != 0 && reBoostByDiff) {
-                        // We have a few milliseconds remaining from our previous boost, release current boost before triggering next one.
-                        mHandler.removeMessages(MSG_DISPATCH_KEYPRESS_BOOST_UNBLOCK);
-                        mPerfKey.perfLockRelease();
-                        mKeypressBoostBlocked = false;
-                    }
-                }
-                dispatchKeypressBoost(keyCode);
             }
         }
 
@@ -6788,7 +6670,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         boolean useHapticFeedback = down
                 && (policyFlags & WindowManagerPolicy.FLAG_VIRTUAL) != 0
-                && repeatCount == 0;
+                && event.getRepeatCount() == 0;
 
         // Specific device key handling
         if (dispatchKeyToKeyHandlers(event)) {
